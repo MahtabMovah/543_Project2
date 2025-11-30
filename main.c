@@ -87,6 +87,8 @@ static void usage(const char *prog) {
         "  --seed SEED       RNG seed (default 42)\n"
         "  --mode MODE       'hctree' (default) or 'baseline'\n"
         "  --disable_hot     alias for --mode baseline\n"
+        "  --sample_init D    initial sampling rate D in (0,1] (default 1.0)\n"
+        "  --adapt_sample     enable adaptive (ML-style) tuning of D\n"
         "  --csv             output one line of CSV instead of human-readable text\n"
         "  --csv_header      print CSV header and exit\n",
         prog);
@@ -109,6 +111,8 @@ int main(int argc, char **argv) {
     RunMode mode = MODE_HCTREE;
     bool csv = false;
     bool csv_header = false;
+    double sample_init   = 1.0;
+    int    adapt_sample  = 0;
 
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--nkeys") && i+1 < argc) {
@@ -136,6 +140,16 @@ int main(int argc, char **argv) {
                 usage(argv[0]);
                 return 1;
             }
+
+        // 🔽 NEW OPTIONS START HERE
+        } else if (!strcmp(argv[i], "--sample_init") && i+1 < argc) {
+            // Initial sampling rate D (0–1)
+            sample_init = atof(argv[++i]);
+        } else if (!strcmp(argv[i], "--adapt_sample")) {
+            // Turn on ML-style adaptation of D
+            adapt_sample = 1;
+        // 🔼 NEW OPTIONS END HERE
+
         } else if (!strcmp(argv[i], "--disable_hot")) {
             mode = MODE_BASELINE;
         } else if (!strcmp(argv[i], "--csv")) {
@@ -178,10 +192,12 @@ int main(int argc, char **argv) {
     if (mode == MODE_HCTREE) {
         // --- Hot/Cold index mode ---
         HCParams params;
-        params.decay_alpha   = decay_alpha;
-        params.hot_threshold = hot_thresh;
+        params.decay_alpha      = decay_alpha;
+        params.hot_threshold    = hot_thresh;
         params.max_hot_fraction = hot_frac;
-        params.inclusive     = 1;
+        params.inclusive        = 1;
+        params.sampling_rate    = sample_init;   // NEW
+        params.adapt_sampling   = adapt_sample;  // NEW
 
         if (!csv) {
             printf("Mode:       HCIndex (hot/cold)\n");
@@ -237,6 +253,7 @@ int main(int argc, char **argv) {
             printf("Cold keys:        %zu\n", cold_keys);
             printf("Avg hot nodes/q:  %.3f\n", avg_hot_nodes_q);
             printf("Avg cold nodes/q: %.3f\n", avg_cold_nodes_q);
+
         }
 
         hc_free(idx);
