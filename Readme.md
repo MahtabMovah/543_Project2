@@ -94,6 +94,7 @@ This approach avoids incorrect assumptions about the cost function, is stable un
 ## Running the Code
 
 Compile:
+```bash
 make clean
 make
 
@@ -103,6 +104,7 @@ Run with fixed sampling rate:
 ./hctree_demo --mode hctree --sample_init 0.5
 Run with ML-adaptive sampling (3 versions in 3 branches):
 ./hctree_demo --mode hctree --sample_init 0.5 --adapt_sample
+
 
 
 
