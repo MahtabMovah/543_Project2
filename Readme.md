@@ -64,3 +64,38 @@ This approach avoids incorrect assumptions about the cost function, is stable un
 
 ## Repository Structure
 
+543_Project2/
+├── Makefile
+├── main.c
+├── btree.c
+├── btree.h
+├── hctree.c
+├── hctree.h
+├── analyze_hctree.py
+└── results.csv
+
+
+- **btree.*:** Core B-tree implementation (in-memory, simplified).  
+- **hctree.*:** Hot/Cold index layer + ML adaptation logic.  
+- **main.c:** Workload generator, CLI, and experiment harness.  
+- **analyze_hctree.py:** Plotting and statistical analysis of results.  
+- **results.csv:** Example benchmark output.
+
+---
+
+## Running the Code
+
+Compile:
+
+```bash
+make clean
+make
+Run baseline HCIndex:
+./hctree_demo --mode hctree
+Run with fixed sampling rate:
+./hctree_demo --mode hctree --sample_init 0.5
+Run with ML-adaptive sampling (3 versions in 3 branches):
+./hctree_demo --mode hctree --sample_init 0.5 --adapt_sample
+
+
+
